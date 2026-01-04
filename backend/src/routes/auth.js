@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-// Тестовый пользователь
+// Тестовый пользовате
 const TEST_USER = {
   id: 1,
   email: 'admin@qaaba.com',
