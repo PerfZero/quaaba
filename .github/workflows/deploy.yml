@@ -1,4 +1,4 @@
-name: Deploy to Server
+name: Deploy to Production Server
 
 on:
   push:
@@ -22,15 +22,60 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            echo "🚀 Начинаем деплой..."
+            set -e
+            
+            echo "🚀 Начинаем деплой на production сервер..."
+            
+            # Переходим в директорию проекта
             cd /var/www/quaaba
+            
+            # Обновляем код из репозитория
             echo "📥 Обновляем код из репозитория..."
             git pull origin main
-            echo "🛑 Останавливаем контейнеры..."
-            docker compose down
+            
+            # Полностью очищаем Docker систему
+            echo "🧹 Очищаем Docker систему..."
+            docker system prune -f
+            docker compose down --volumes --remove-orphans || true
+            
+            # Удаляем старые образы
+            docker image prune -f
+            docker rmi $(docker images -q) 2>/dev/null || true
+            
+            # Собираем и запускаем контейнеры
             echo "🔨 Собираем и запускаем контейнеры..."
-            docker compose up -d --build
+            docker compose up -d --build --force-recreate
+            
+            # Ждём запуска бэкенда
+            echo "⏳ Ждём запуска сервисов..."
+            sleep 30
+            
+            # Выполняем миграции базы данных
+            echo "🗄️ Выполняем миграции базы данных..."
+            docker compose exec -T backend npx prisma migrate deploy || echo "Миграции не требуются"
+            docker compose exec -T backend npx prisma generate
+            
+            # Проверяем здоровье сервисов
+            echo "🏥 Проверяем здоровье сервисов..."
+            sleep 10
+            
+            # Проверяем статус контейнеров
             echo "📊 Статус контейнеров:"
             docker compose ps
+            
+            # Проверяем API
+            echo "🔍 Проверяем API эндпоинты..."
+            curl -f http://localhost:5001/api/health || echo "❌ Backend API недоступен"
+            curl -f http://localhost:3000 || echo "❌ Frontend недоступен"
+            
+            # Показываем логи если есть ошибки
+            if ! docker compose ps | grep -q "Up"; then
+              echo "❌ Обнаружены проблемы с контейнерами:"
+              docker compose logs --tail=50
+              exit 1
+            fi
+            
             echo "✅ Деплой завершен успешно!"
+            echo "🌐 Frontend: http://85.198.103.39:3000"
+            echo "🔧 Backend API: http://85.198.103.39:5001"
 
