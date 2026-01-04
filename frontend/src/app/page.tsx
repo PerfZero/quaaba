@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 const { Title, Paragraph } = Typography;
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 export default function Home() {
   const [apiStatus, setApiStatus] = useState<string>('Не проверено');
@@ -17,7 +17,7 @@ export default function Home() {
   const checkApi = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/health`);
+      const response = await axios.get(`${API_URL}/health`);
       setApiStatus('Работает! ✅');
       message.success('Бэкенд подключен успешно!');
     } catch (error) {
