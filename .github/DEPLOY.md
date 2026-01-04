@@ -22,31 +22,20 @@ root
 ### SERVER_SSH_KEY
 Приватный SSH ключ для подключения к серверу
 
-#### Как получить SSH ключ:
+**Уже создан ключ специально для GitHub Actions:**
+- Файл: `~/.ssh/github_actions_deploy`
+- Публичный ключ уже должен быть добавлен на сервер
+- Приватный ключ нужно добавить в GitHub Secrets
 
-1. **Если у вас уже есть SSH ключ на локальной машине:**
-   ```bash
-   cat ~/.ssh/id_rsa
-   ```
-   Скопируйте весь вывод (включая `-----BEGIN OPENSSH PRIVATE KEY-----` и `-----END OPENSSH PRIVATE KEY-----`)
+**Если нужно добавить публичный ключ на сервер вручную:**
+```bash
+ssh root@85.198.103.39
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDT3PUSJpCpnsiQuFDEbR0HoeBVDNua6kkhBSdqV4AtQ github-actions-deploy" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
 
-2. **Если ключа нет, создайте новый:**
-   ```bash
-   ssh-keygen -t rsa -b 4096 -C "github-actions"
-   ```
-   Затем скопируйте приватный ключ:
-   ```bash
-   cat ~/.ssh/id_rsa
-   ```
-
-3. **Добавьте публичный ключ на сервер:**
-   ```bash
-   ssh-copy-id root@85.198.103.39
-   ```
-   Или вручную:
-   ```bash
-   cat ~/.ssh/id_rsa.pub | ssh root@85.198.103.39 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
-   ```
+**Приватный ключ для GitHub Secrets:**
+Скопируйте весь приватный ключ из файла `~/.ssh/github_actions_deploy` (включая строки `-----BEGIN OPENSSH PRIVATE KEY-----` и `-----END OPENSSH PRIVATE KEY-----`)
 
 ## Как работает workflow
 

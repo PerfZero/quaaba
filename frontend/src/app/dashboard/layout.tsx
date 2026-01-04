@@ -149,7 +149,7 @@ export default function DashboardLayout({
     padding: 24, 
     background: '#fff',
     borderRadius: 8,
-    border: '1px solid #00000010'  // 8-значный HEX с альфа-каналом 00 (полная прозрачность)
+    border: '1px solid #00000010' 
 }}>
             {children}
           </Content>
