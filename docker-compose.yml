@@ -9,7 +9,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=5000
-      - DATABASE_URL="file:./dev.db"
+      - DATABASE_URL=file:./dev.db
     volumes:
       - ./backend:/app
       - /app/node_modules
