@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 const { Title, Paragraph } = Typography;
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 export default function Home() {
   const [apiStatus, setApiStatus] = useState<string>('Не проверено');

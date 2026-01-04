@@ -7,6 +7,8 @@ import Link from 'next/link';
 
 const { Title, Text } = Typography;
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+
 export default function LoginPage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -15,7 +17,7 @@ export default function LoginPage() {
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5001/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
