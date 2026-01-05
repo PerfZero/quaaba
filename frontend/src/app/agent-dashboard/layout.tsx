@@ -4,24 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Layout, Menu, Typography, Flex, Spin, Select } from 'antd';
 import {
-  SettingOutlined,
-  BankOutlined,
-  DollarOutlined,
-  ApiOutlined,
-  FileTextOutlined,
-  UserOutlined,
-  TeamOutlined,
-  SafetyOutlined,
-  EnvironmentOutlined,
-  RocketOutlined,
   HomeOutlined,
-  CarOutlined,
-  CoffeeOutlined,
-  AppstoreOutlined,
-  CreditCardOutlined,
-  PlusCircleOutlined,
-  ShopOutlined,
-  DownOutlined,
+  DollarOutlined,
+  UserOutlined,
+  GlobalOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -30,43 +17,34 @@ const { Text } = Typography;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
-const menuItems: MenuItem[] = [
+const agentMenuItems: MenuItem[] = [
   {
     type: 'group',
-    label: 'Настройки',
+    label: 'Основные',
     children: [
-      { key: 'companies', label: 'Компании', icon: <BankOutlined /> },
-      { key: 'currency', label: 'Валюта', icon: <DollarOutlined /> },
-      { key: 'integrations', label: 'Интеграции', icon: <ApiOutlined /> },
-    ],
-  },
-  {
-    type: 'group',
-    label: 'СУД',
-    children: [
-      { key: 'users', label: 'Пользователи', icon: <UserOutlined /> },
-      { key: 'roles', label: 'Роли', icon: <TeamOutlined /> },
-      { key: 'access', label: 'Доступы', icon: <SafetyOutlined /> },
-    ],
-  },
-  {
-    type: 'group',
-    label: 'Реестр',
-    children: [
-      { key: 'cities', label: 'Города', icon: <EnvironmentOutlined /> },
-      { key: 'airlines', label: 'Авиакомпании', icon: <RocketOutlined /> },
-      { key: 'hotels', label: 'Отели', icon: <HomeOutlined /> },
-      { key: 'transport', label: 'Транспорты', icon: <CarOutlined /> },
-      { key: 'food', label: 'Питание', icon: <CoffeeOutlined /> },
-      { key: 'rooms', label: 'Комнаты', icon: <AppstoreOutlined /> },
-      { key: 'banks', label: 'Банки', icon: <CreditCardOutlined /> },
-      { key: 'extra-services', label: 'Допуслуги', icon: <PlusCircleOutlined /> },
-      { key: 'tour-operators', label: 'Туроператоры', icon: <ShopOutlined /> },
+      { key: 'home', label: 'Главная', icon: <HomeOutlined /> },
+      { key: 'sales', label: 'Продажи', icon: <DollarOutlined /> },
+      { key: 'clients', label: 'Клиенты', icon: <UserOutlined /> },
+      { key: 'tours', label: 'Туры', icon: <GlobalOutlined /> },
     ],
   },
 ];
 
-export default function DashboardLayout({
+// Неактивные пункты меню для онбординга
+const disabledMenuItems: MenuItem[] = [
+  {
+    type: 'group',
+    label: 'Основные',
+    children: [
+      { key: 'home', label: 'Главная', icon: <HomeOutlined />, disabled: true },
+      { key: 'sales', label: 'Продажи', icon: <DollarOutlined />, disabled: true },
+      { key: 'clients', label: 'Клиенты', icon: <UserOutlined />, disabled: true },
+      { key: 'tours', label: 'Туры', icon: <GlobalOutlined />, disabled: true },
+    ],
+  },
+];
+
+export default function AgentDashboardLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -74,7 +52,8 @@ export default function DashboardLayout({
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
-  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; role: string; onboarded?: boolean } | null>(null);
+  const [isOnboarding, setIsOnboarding] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -89,18 +68,37 @@ export default function DashboardLayout({
       const parsedUser = JSON.parse(userData);
       setUser(parsedUser);
       
-      // Проверка роли - только админы могут заходить на админский дашборд
-      if (parsedUser.role !== 'admin') {
-        router.push('/agent-dashboard');
+      // Проверка роли - только агенты могут заходить на этот дашборд
+      if (parsedUser.role !== 'agent') {
+        router.push('/dashboard');
         return;
       }
+
+      // Проверка онбординга
+      const needsOnboarding = !parsedUser.onboarded;
+      setIsOnboarding(needsOnboarding);
     }
     
     setLoading(false);
   }, [router]);
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
-    router.push(`/dashboard/${e.key}`);
+    // Блокируем навигацию во время онбординга
+    if (isOnboarding) {
+      return;
+    }
+    
+    if (e.key === 'home') {
+      router.push('/agent-dashboard');
+    } else {
+      router.push(`/agent-dashboard/${e.key}`);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    router.push('/login');
   };
 
   if (loading) {
@@ -112,28 +110,30 @@ export default function DashboardLayout({
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' ,  background: '#F5F5F5' }}>
+    <Layout style={{ minHeight: '100vh', background: '#F5F5F5' }}>
       <Header style={{ 
         background: '#F5F5F5', 
         padding: '0 24px', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'space-between'
-       
       }}>
         <div style={{ width: 28, height: 28, background: '#08918B' }} />
         <Flex align="center" gap={16}>
           <Select
             defaultValue="qaabaone"
-            suffixIcon={<DownOutlined />}
             style={{ width: 150 }}
             variant="borderless"
             options={[
               { value: 'qaabaone', label: 'ТОО QaabaOne' },
             ]}
           />
-          <Text>Менеджер</Text>
-          <Text strong>Алишер</Text>
+          <Text>Агент</Text>
+          <Text strong>{user?.name || 'Пользователь'}</Text>
+          <LogoutOutlined 
+            style={{ cursor: 'pointer' }} 
+            onClick={handleLogout}
+          />
         </Flex>
       </Header>
       <Layout>
@@ -151,7 +151,7 @@ export default function DashboardLayout({
         >
           <Menu
             mode="inline"
-            items={menuItems}
+            items={isOnboarding ? disabledMenuItems : agentMenuItems}
             onClick={handleMenuClick}
             style={{ 
               borderRight: 0,
@@ -160,12 +160,12 @@ export default function DashboardLayout({
           />
         </Sider>
         <Layout>
-        <Content style={{ 
-    padding: 24, 
-    background: '#fff',
-    borderRadius: 8,
-    border: '1px solid #00000010' 
-}}>
+          <Content style={{ 
+            padding: isOnboarding ? 0 : 24, 
+            background: isOnboarding ? 'transparent' : '#fff',
+            borderRadius: isOnboarding ? 0 : 8,
+            border: isOnboarding ? 'none' : '1px solid #00000010' 
+          }}>
             {children}
           </Content>
         </Layout>

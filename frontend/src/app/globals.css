@@ -19,6 +19,22 @@
   }
 }
 
+.demo-data-modal-bottom-right,
+.demo-data-modal-bottom-right.ant-modal-wrap {
+  inset: 0 !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-end !important;
+  padding: 0 24px 24px 0 !important;
+}
+
+.demo-data-modal-bottom-right .ant-modal,
+.demo-data-modal-bottom-right.ant-modal-wrap .ant-modal {
+  margin: 0 !important;
+  top: auto !important;
+  max-width: min(380px, calc(100vw - 48px)) !important;
+}
+
 html,
 body {
   background: #F9FAFA;

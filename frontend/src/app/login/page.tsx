@@ -37,7 +37,15 @@ export default function LoginPage() {
       localStorage.setItem('user', JSON.stringify(data.user));
       
       message.success('Вход выполнен успешно!');
-      router.push('/dashboard');
+      
+      // Редирект в зависимости от роли
+      if (data.user.role === 'admin') {
+        router.push('/dashboard');
+      } else if (data.user.role === 'agent') {
+        router.push('/agent-dashboard');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (error) {
       message.error(error instanceof Error ? error.message : 'Ошибка входа. Проверьте данные.');
     } finally {
