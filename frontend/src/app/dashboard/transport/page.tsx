@@ -176,11 +176,11 @@ export default function TransportPage() {
     </>
   );
 
-  const buildFileListFromUrls = (urls: string[]) =>
+  const buildFileListFromUrls = (urls: string[]): UploadFile[] =>
     urls.map((url) => ({
       uid: url,
       name: url.split("/").pop() || "photo",
-      status: "done",
+      status: "done" as const,
       url,
     }));
 
