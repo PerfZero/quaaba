@@ -10,6 +10,7 @@ services:
       - NODE_ENV=production
       - PORT=5000
       - DATABASE_URL=file:./dev.db
+      - CORS_ORIGINS=${CORS_ORIGINS}
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -22,13 +23,13 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=http://85.198.103.39:5001/api
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     container_name: frontend
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://85.198.103.39:5001/api
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     depends_on:
       - backend
     restart: unless-stopped
