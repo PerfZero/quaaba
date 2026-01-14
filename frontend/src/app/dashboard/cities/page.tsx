@@ -108,7 +108,6 @@ export default function CitiesPage() {
           return {
             value: `${item.value}::${countryCode || countryName}`,
             label: `${item.value} (${countryName})`,
-            cityValue: item.value,
           };
         },
       );
@@ -732,8 +731,8 @@ export default function CitiesPage() {
                 citySearchLoading ? "Загрузка..." : "Ничего не найдено"
               }
               filterOption={false}
-              onSelect={(_, option) =>
-                form.setFieldsValue({ name: option.cityValue })
+              onSelect={(value) =>
+                form.setFieldsValue({ name: value.split("::")[0] })
               }
             >
               <Input placeholder="Введите текст" />
