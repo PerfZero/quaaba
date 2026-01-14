@@ -59,3 +59,65 @@ model Bank {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model City {
+  id        Int      @id @default(autoincrement())
+  name      String
+  short     String   @unique
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Airline {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  status      String   @default("active") // active, inactive
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Transport {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String   @default("city") // city, intercity
+  description String?
+  status      String   @default("active") // active, inactive
+  photos      TransportPhoto[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TransportPhoto {
+  id          Int      @id @default(autoincrement())
+  transportId Int
+  url         String
+  createdAt   DateTime @default(now())
+  transport   Transport @relation(fields: [transportId], references: [id], onDelete: Cascade)
+}
+
+model Food {
+  id        Int      @id @default(autoincrement())
+  name      String
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  name      String
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExtraService {
+  id        Int      @id @default(autoincrement())
+  name      String
+  code      String   @unique
+  status    String   @default("active") // active, inactive
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
